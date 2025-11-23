@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="assets/css/style.css"><title>Membership — TVSNA</title></head><body><header><nav class="nav"><div class="brand"><span class="logo-pill">TVSNA</span> Tamil Nadu Vokkaliga Sangam North America</div><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="chapters.html">Chapters</a></li><li><a href="events.html">Events</a></li><li><a href="membership.html">Membership</a></li><li><a href="donate.html">Donate</a></li><li><a href="media.html">Media</a></li><li><a href="help.html">Get help</a></li><li><a href="contact.html">Contact</a></li></ul></nav></header>
+<section class='section'><h2 class='h2'>Membership</h2><p class='lead'>Join a vibrant network of families, professionals, and students.</p>
+<div class='grid cols-2' style='margin-top:12px'>
+  <div class='tile'>
+    <h3>Membership Benefits</h3>
+    <ul><li>Access to member directory and mentorship network</li><li>Discounts for events and convention</li><li>Scholarships and youth programs</li><li>Volunteer opportunities and leadership roles</li><li>Community support (education, marriage, humanitarian)</li></ul>
+  </div>
+  <div class='tile'>
+    <h3>Become a Member</h3>
+    <form id='join-form'>
+      <div class='row'><div><label>Full Name</label><input name='name' required></div><div><label>Email</label><input type='email' name='email' required></div></div>
+      <div class='row'><div><label>City/State</label><input name='location' required></div><div><label>Phone</label><input name='phone'></div></div>
+      <div class='row'><div><label>Username</label><input name='username' required></div><div><label>Password</label><input type='password' name='password' required></div></div>
+      <button type='submit'>Submit Application</button>
+    </form>
+    <p class='lead' style='font-size:13px;margin-top:8px'>Note: This demo stores data locally. Connect to a backend (e.g., Azure Static Web Apps + Functions) for real submissions and secure storage.</p>
+  </div>
+</div>
+<div class='grid cols-2' style='margin-top:12px'>
+  <div class='tile'>
+    <h3>Member Login</h3>
+    <form id='login-form'><div class='row'><div><label>Username</label><input id='login-user' required></div><div><label>Password</label><input id='login-pass' type='password' required></div></div><button type='submit'>Login</button> <button type='button' class='outline' id='logout'>Logout</button></form>
+    <p class='lead' style='font-size:13px;margin-top:8px'>Demo-only auth. Replace with secure, server-side authentication and role-based access control before go-live.</p>
+  </div>
+  <div class='tile' id='directory-tile' style='display:none'>
+    <h3>Member Directory</h3>
+    <p class='lead' style='font-size:13px'>Search and add your details (demo storage in browser).</p>
+    <div class='row'><div><label>Search</label><input id='dir-search' placeholder='Name, location, email'></div><div></div></div>
+    <table class='table' style='margin-top:8px'><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id='dir-body'></tbody></table>
+    <h4 style='margin-top:12px'>Add / Update My Details</h4>
+    <form id='dir-add-form'>
+      <div class='row'><div><label>Name</label><input name='name' required></div><div><label>Location</label><input name='location' required></div></div>
+      <div class='row'><div><label>Email</label><input type='email' name='email' required></div><div><label>Phone</label><input name='phone'></div></div>
+      <button type='submit'>Save to Directory (Demo)</button>
+    </form>
+    <p class='lead' style='font-size:13px;margin-top:8px'>Backend integration: POST <code>/api/members</code> with JWT auth; GET <code>/api/members?search=</code> for queries.</p>
+  </div>
+</div>
+<footer><div class="cols"><div><strong>TVSNA</strong><br>A volunteer-run, non-profit community platform.</div><div><h4>Explore</h4><a href="about.html">About</a><br><a href="chapters.html">Chapters</a></div><div><h4>Members</h4><a href="membership.html">Benefits</a><br><a href="donate.html">Donate</a></div><div><h4>Help</h4><a href="help.html">Education</a><br><a href="contact.html">Contact</a></div></div><div class="copy">© <span id="year"></span> TVSNA. All rights reserved.</div><script>document.getElementById("year").textContent=new Date().getFullYear();</script></footer></body></html>
+<script>
+(function(){
+  const storeKey='tvsna_members';
+  let members=JSON.parse(localStorage.getItem(storeKey)||'[]');
+  const dirTile=document.getElementById('directory-tile');
+  const dirBody=document.getElementById('dir-body');
+  const dirSearch=document.getElementById('dir-search');
+  function render(list){
+    dirBody.innerHTML=list.map(m=>`<tr><td>${m.name}</td><td>${m.location}</td><td><a href="mailto:${m.email}">${m.email}</a>${m.phone? ' • '+m.phone:''}</td></tr>`).join('');
+  }
+  function save(){ localStorage.setItem(storeKey, JSON.stringify(members)); }
+  document.getElementById('join-form').addEventListener('submit', e=>{ e.preventDefault(); alert('Thanks! Your application has been recorded (demo). Replace with backend API to store securely.'); e.target.reset(); });
+  document.getElementById('login-form').addEventListener('submit', e=>{ e.preventDefault(); const u=document.getElementById('login-user').value.trim(); const p=document.getElementById('login-pass').value.trim(); if(u && p.length>=6){ localStorage.setItem('tvsna_auth','1'); dirTile.style.display='block'; render(members);} else alert('Enter a username and password (6+ chars)'); });
+  document.getElementById('logout').addEventListener('click', ()=>{ localStorage.removeItem('tvsna_auth'); dirTile.style.display='none'; });
+  if(localStorage.getItem('tvsna_auth')==='1'){ dirTile.style.display='block'; render(members); }
+  dirSearch.addEventListener('input', e=>{ const q=e.target.value.toLowerCase(); const filtered=members.filter(m => `${m.name} ${m.location} ${m.email} ${m.phone||''}`.toLowerCase().includes(q)); render(filtered); });
+  document.getElementById('dir-add-form').addEventListener('submit', e=>{ e.preventDefault(); const fd=Object.fromEntries(new FormData(e.target).entries()); const idx=members.findIndex(m=>m.email===fd.email); if(idx>=0) members[idx]=fd; else members.push(fd); save(); render(members); e.target.reset(); alert('Saved locally (demo). Replace with secure backend to persist.'); });
+})();
+</script>
